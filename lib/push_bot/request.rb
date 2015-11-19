@@ -1,4 +1,4 @@
-require 'typhoeus'
+require 'rest-client'
 require 'json'
 
 module PushBot
@@ -25,23 +25,17 @@ module PushBot
       url = "https://api.pushbots.com/#{@base}"
       url << "/#{name}" if name
 
-      request_options = {
-        :method => type,
-        :body => JSON.dump(options),
-        :headers => {
-          :'X-PushBots-AppID' => Config.config.id,
-          :'X-PushBots-Secret' => Config.config.secret,
-          :'Content-Type' => :'application/json'
-        }
+      headers = {
+        'X-PushBots-AppID' => Config.config.id,
+        'X-PushBots-Secret' => Config.config.secret,
+        'Content-Type' => 'application/json'
       }
 
       if type == :get
-        request_options[:headers][:Token] = options[:token]
+        headers[:Token] = options[:token]
       end
 
-      request = Typhoeus::Request.new(url, request_options)
-
-      Response.new { request.run }
+      RestClient.send(type, url, JSON.dump(options), headers)
     end
   end
 end

@@ -7,15 +7,14 @@ describe PushBot::Request do
       let(:secret) { 'super_secret_key' }
       let(:type) { :all }
       let(:options) { { msg:'foo', platform: '0' } }
-      let(:request_options) { {
-        method: :post,
-        body: JSON.dump(options),
-        headers: {
-          :'X-PushBots-AppID' => id,
-          :'X-PushBots-Secret' => secret,
-          :'Content-Type' => :'application/json'
+      let(:url) { "https://api.pushbots.com/push/#{type}" }
+      let(:headers) {
+        {
+          'X-PushBots-AppID' => id,
+          'X-PushBots-Secret' => secret,
+          'Content-Type' => 'application/json'
         }
-      } }
+      }
 
       before do
         PushBot.configure do |config|
@@ -24,8 +23,9 @@ describe PushBot::Request do
         end
       end
 
-      it 'Typhoeus::Request should receive #new' do
-        expect(Typhoeus::Request).to receive(:new).with("https://api.pushbots.com/push/#{type}",request_options)
+
+      it 'RestClient::Request should receive #new' do
+        expect(RestClient).to receive(:post).with(url, JSON.dump(options), headers)
         described_class.new(:push).post(type, options)
       end
     end

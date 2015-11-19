@@ -4,10 +4,10 @@ module PushBot
 
     attr_reader :raw_response, :error
 
-    def initialize
-      @raw_response = yield
+    def initialize(raw_response)
+      @raw_response = raw_response
     rescue => e
-      @error = e
+      @error = e.response
     end
 
     def inspect
